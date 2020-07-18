@@ -11,8 +11,10 @@ namespace RedisCache
             IDatabase db = redis.GetDatabase();
 
             string key = string.Format("key{0}", new Random().Next(1, 100000).ToString());
-            SetKeyValue(db, key, string.Format("Value{0}", key));
-            GetKeyValue(db, key);
+            //SetKeyValue(db, key, string.Format("Value{0}", key));
+            //GetKeyValue(db, key);
+            UpdateValueByKey(db, "key21447", "test001");//key21447
+            GetKeyValue(db, "key21447");
 
             Console.WriteLine("Hello World!");
         }
@@ -24,6 +26,12 @@ namespace RedisCache
         }
 
         static void SetKeyValue(IDatabase db, string key, string value)
+        {
+            var success = db.StringSet(key, value);
+            Console.WriteLine(success);
+        }
+
+        static void UpdateValueByKey(IDatabase db, string key, string value)
         {
             var success = db.StringSet(key, value);
             Console.WriteLine(success);
