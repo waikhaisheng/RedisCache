@@ -7,7 +7,8 @@ namespace RedisCache
     {
         static void Main(string[] args)
         {
-            ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+            //ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
+            ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("127.0.0.1:6379");
             IDatabase db = redis.GetDatabase();
 
             string key = string.Format("key{0}", new Random().Next(1, 100000).ToString());
