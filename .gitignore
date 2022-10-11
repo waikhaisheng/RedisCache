@@ -1,3 +1,7 @@
 RedisCache/bin/
 RedisCache/obj/
 .vs/RedisCache/
+NUnitTestProjectRedis/bin/
+NUnitTestProjectRedis/obj/
+WebApplicationRedis/bin/
+WebApplicationRedis/obj/

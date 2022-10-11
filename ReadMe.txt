@@ -20,5 +20,26 @@ CMD command: visit https://redis.io/commands
 >monitor
 ****************************************************************
 Install NuGet:
-StackExchange.Redis
+-StackExchange.Redis
+-Microsoft.Extensions.Caching.StackExchangeRedis
+
+Test: Nuget:
+-Microsoft.Extensions.Configuration
+-Microsoft.Extensions.DependencyInjection
+-Microsoft.Extensions.Configuration.Json
 ****************************************************************
+Redis Desktop Manager:
+https://github.com/qishibo/AnotherRedisDesktopManager
+****************************************************************
+>docker run --name my-redis -p 5002:6369 -d redis
+>docker ps -a
+>docker exec -it my-redis sh
+>dbsize
+>select 0
+>scan 0
+>docker stop namecontainer
+>docker rm namecontainer
+>docker images
+>exit
+>KEYS *
+>GET <keyname>
