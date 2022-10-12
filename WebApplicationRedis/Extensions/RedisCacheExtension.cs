@@ -11,15 +11,15 @@ namespace WebApplicationRedis.Extensions
     {
         public static void SetData<T>(this IConnectionMultiplexer connectionMultiplexer, string key, T value, int dbNo = 0)
         {
-            var jv = JsonConvert.SerializeObject(value);
-            var db = connectionMultiplexer.GetDatabase(dbNo);
+            string jv = JsonConvert.SerializeObject(value);
+            IDatabase db = connectionMultiplexer.GetDatabase(dbNo);
             db.StringSet(key, jv);
         }
         
         public static T GetData<T>(this IConnectionMultiplexer connectionMultiplexer, string key, int dbNo = 0)
         {
-            var db = connectionMultiplexer.GetDatabase(dbNo);
-            var s = db.StringGet(key);
+            IDatabase db = connectionMultiplexer.GetDatabase(dbNo);
+            RedisValue s = db.StringGet(key);
 
             if (s.HasValue)
             {
@@ -27,6 +27,35 @@ namespace WebApplicationRedis.Extensions
             }
 
             return default(T);
+        }
+        
+        public static bool DeleteKey(this IConnectionMultiplexer connectionMultiplexer, int? dbNo = null, params string[] keys)
+        {
+            bool ret = false;
+
+            if (keys != null)
+            {
+                for (int i = 0; i < keys.Length; i++)
+                {
+                    if (keys[i] == null)
+                    {
+                        return ret;
+                    }
+                }
+
+                int rdb = 0;
+                if (dbNo != null)
+                {
+                    rdb = (int)dbNo;
+                }
+
+                IDatabase db = connectionMultiplexer.GetDatabase(rdb);
+
+                RedisKey[] rk = keys.Select(x => (RedisKey)x).ToArray();
+
+                ret = db.KeyDelete(rk) > 0;
+            }
+            return ret;
         }
     }
 }

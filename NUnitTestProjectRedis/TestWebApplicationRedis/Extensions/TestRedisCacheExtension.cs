@@ -32,7 +32,8 @@ namespace NUnitTestProjectRedis.TestWebApplicationRedis.Extensions
             {
                 Configuration = InitConfiguration();
                 var services = new ServiceCollection();
-                var multiplexer = ConnectionMultiplexer.Connect("localhost");
+                var cs = Configuration.GetConnectionString("Redis");
+                var multiplexer = ConnectionMultiplexer.Connect(cs);
                 services.AddSingleton<IConnectionMultiplexer>(multiplexer);
                 serviceProvider = services.BuildServiceProvider();
 
@@ -56,11 +57,12 @@ namespace NUnitTestProjectRedis.TestWebApplicationRedis.Extensions
                         .ToArray();
 
             srv.SetData<string[]>(rid, data);
+            Test_GetData();
 
             Assert.Pass();
         }
 
-        [Test]
+        //[Test]
         public void Test_GetData()
         {
             var srv = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
@@ -69,6 +71,70 @@ namespace NUnitTestProjectRedis.TestWebApplicationRedis.Extensions
             var data = srv.GetData<string[]>(rid);
 
             Assert.IsNotNull(data);
+        }
+        
+        [Test]
+        public void Test_DeleteKey()
+        {
+            var srv = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
+
+            var rng = new Random();
+            var db = 1;
+            var rid = "id1";
+            var data = Enumerable.Range(1, 5).Select(index => rng.Next(-20, 55).ToString())
+            .ToArray();
+
+            srv.SetData<string[]>(rid, data, db);
+
+            var ret = srv.DeleteKey(db, rid);
+
+            Assert.IsTrue(ret);
+        }
+        
+        [Test]
+        public void Test_DeleteKey0()
+        {
+            var srv = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
+
+            var rng = new Random();
+            var db = 1;
+            var rid = new string[] { };
+            var ret = srv.DeleteKey(db, rid);
+
+            Assert.IsTrue(!ret);
+        }
+        
+        [Test]
+        public void Test_DeleteKeyWithNull()
+        {
+            var srv = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
+
+            var rng = new Random();
+            var db = 1;
+            var rid = new string[] { null };
+            var ret = srv.DeleteKey(db, rid);
+
+            Assert.IsTrue(!ret);
+        }
+        
+        [Test]
+        public void Test_DeleteKeyNull()
+        {
+            var srv = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
+
+            var rng = new Random();
+            var db = 1;
+            var ret = srv.DeleteKey(db, null);
+
+            Assert.IsTrue(!ret);
+        }
+        
+        [Test]
+        public void Test_()
+        {
+
+
+            Assert.Pass();
         }
     }
 }
