@@ -18,15 +18,25 @@ namespace WebApplicationRedis.Extensions
         
         public static T GetData<T>(this IConnectionMultiplexer connectionMultiplexer, string key, int dbNo = 0)
         {
-            IDatabase db = connectionMultiplexer.GetDatabase(dbNo);
-            RedisValue s = db.StringGet(key);
-
-            if (s.HasValue)
+            var ret = default(T);
+            if (key != null)
             {
-                return JsonConvert.DeserializeObject<T>(s);
+                IDatabase db = connectionMultiplexer.GetDatabase(dbNo);
+                RedisValue s = db.StringGet(key);
+
+                if (s.HasValue)
+                {
+                    try
+                    {
+                        ret = JsonConvert.DeserializeObject<T>(s);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
             }
 
-            return default(T);
+            return ret;
         }
         
         public static bool DeleteKey(this IConnectionMultiplexer connectionMultiplexer, int? dbNo = null, params string[] keys)

@@ -72,7 +72,42 @@ namespace NUnitTestProjectRedis.TestWebApplicationRedis.Extensions
 
             Assert.IsNotNull(data);
         }
+
+        [Test]
+        public void Test_SetDataNull()
+        {
+            var srv = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
+
+            var rid = "id1";
+            srv.SetData<string[]>(rid, null);
+            var data = srv.GetData<string[]>(rid);
+
+            Assert.AreEqual(null, data);
+        }
+
+        [Test]
+        public void Test_SetDataNullInt()
+        {
+            var srv = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
+
+            var rid = "id1";
+            srv.SetData<string[]>(rid, null);
+            var data = srv.GetData<int>(rid);
+
+            Assert.AreEqual(0, data);
+        }
         
+        [Test]
+        public void Test_GetDataNull()
+        {
+            var srv = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
+
+            string rid = null;
+            var data = srv.GetData<string[]>(rid);
+
+            Assert.AreEqual(null, data);
+        }
+
         [Test]
         public void Test_DeleteKey()
         {
@@ -96,7 +131,6 @@ namespace NUnitTestProjectRedis.TestWebApplicationRedis.Extensions
         {
             var srv = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
 
-            var rng = new Random();
             var db = 1;
             var rid = new string[] { };
             var ret = srv.DeleteKey(db, rid);
@@ -109,7 +143,6 @@ namespace NUnitTestProjectRedis.TestWebApplicationRedis.Extensions
         {
             var srv = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
 
-            var rng = new Random();
             var db = 1;
             var rid = new string[] { null };
             var ret = srv.DeleteKey(db, rid);
@@ -122,7 +155,6 @@ namespace NUnitTestProjectRedis.TestWebApplicationRedis.Extensions
         {
             var srv = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
 
-            var rng = new Random();
             var db = 1;
             var ret = srv.DeleteKey(db, null);
 
