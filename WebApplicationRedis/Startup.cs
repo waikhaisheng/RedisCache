@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,10 @@ namespace WebApplicationRedis
                 option.Configuration = Configuration.GetConnectionString("Redis");
                 option.InstanceName = "RedisDemo_";
             });
+
+            //Configure other services up here
+            var multiplexer = ConnectionMultiplexer.Connect("localhost");
+            services.AddSingleton<IConnectionMultiplexer>(multiplexer);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

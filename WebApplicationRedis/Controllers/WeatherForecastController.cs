@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace WebApplicationRedis.Controllers
     public class WeatherForecastController : ControllerBase
     {
         private readonly IDistributedCache _distributedCache;
+        private readonly IConnectionMultiplexer _redis;
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -22,10 +24,12 @@ namespace WebApplicationRedis.Controllers
         private readonly ILogger<WeatherForecastController> _logger;
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger,
-            IDistributedCache distributedCache)
+            IDistributedCache distributedCache,
+            IConnectionMultiplexer redis)
         {
             _logger = logger;
             _distributedCache = distributedCache;
+            _redis = redis;
         }
 
         [HttpGet]
@@ -50,6 +54,15 @@ namespace WebApplicationRedis.Controllers
             }
 
             return data;
+        }
+
+        [HttpGet("foo")]
+        public async Task<IActionResult> Foo()
+        {
+            var db = _redis.GetDatabase(1);
+            db.StringSet("foo", "Test123");
+            var foo = await db.StringGetAsync("foo");
+            return Ok(foo.ToString());
         }
     }
 }

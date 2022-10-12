@@ -11,7 +11,7 @@ using WebApplicationRedis.Extensions;
 
 namespace NUnitTestProjectRedis.TestWebApplicationRedis.Extensions
 {
-    public class DistributedCacheExtensions
+    public class TestDistributedCacheExtensions
     {
         private IConfiguration Configuration;
         private ServiceProvider serviceProvider;

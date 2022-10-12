@@ -16,7 +16,7 @@ namespace WebApplicationRedis.Extensions
             TimeSpan? unusedExpireTime = null)
         {
             var option = new DistributedCacheEntryOptions();
-            option.AbsoluteExpirationRelativeToNow = absoluteExpireTime ?? TimeSpan.FromSeconds(60);
+            option.AbsoluteExpirationRelativeToNow = absoluteExpireTime ?? TimeSpan.FromSeconds(600);
             option.SlidingExpiration = unusedExpireTime;
 
             var jsonData = JsonSerializer.Serialize(data);
