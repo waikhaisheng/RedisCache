@@ -112,6 +112,33 @@ namespace NUnitTestProjectRedis.TestWebApplicationRedis.Extensions
         }
 
         [Test]
+        public void Test_SetRedisDataGetRedisData()
+        {
+            try
+            {
+                var srv = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
+
+                var rng = new Random();
+                var rid = "id1";
+
+                var data = Enumerable.Range(1, 5).Select(index => rng.Next(-20, 55).ToString())
+                            .ToArray();
+
+                srv.SetRedisData<string[]>(rid, data);
+                var getRedisData = srv.GetRedisData<string[]>(rid);
+
+                Assert.AreEqual(data[0], getRedisData[0]);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            Assert.Pass();
+        }
+
+        #region DeleteKey
+        [Test]
         public void Test_DeleteKey()
         {
             var srv = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
@@ -163,7 +190,9 @@ namespace NUnitTestProjectRedis.TestWebApplicationRedis.Extensions
 
             Assert.IsTrue(!ret);
         }
-
+        #endregion
+        
+        #region Test
         [Test]
         public void Test_SetAdd()
         {
@@ -284,7 +313,9 @@ namespace NUnitTestProjectRedis.TestWebApplicationRedis.Extensions
 
             Assert.Pass();
         }
-        
+
+        #endregion
+
     }
     internal class StudentName
     {

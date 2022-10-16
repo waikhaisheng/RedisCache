@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApplicationRedis.Models.RedisModels;
 
 namespace WebApplicationRedis.Extensions
 {
@@ -37,6 +38,45 @@ namespace WebApplicationRedis.Extensions
             }
 
             return ret;
+        }
+
+        public static void SetRedisData<T>(this IConnectionMultiplexer connectionMultiplexer, string key, T value, int dbNo = 0)
+        {
+            var lr = new RedisData<T>();
+            lr.DataType = value.GetType();
+            lr.Data = value;
+            string jv = JsonConvert.SerializeObject(lr);
+            IDatabase db = connectionMultiplexer.GetDatabase(dbNo);
+            db.StringSet(key, jv);
+        }
+
+        public static T GetRedisData<T>(this IConnectionMultiplexer connectionMultiplexer, string key, int dbNo = 0)
+        {
+            T ret = default(T);
+            if (key != null)
+            {
+                IDatabase db = connectionMultiplexer.GetDatabase(dbNo);
+                RedisValue s = db.StringGet(key);
+
+                if (s.HasValue)
+                {
+                    try
+                    {
+                        var redisJsonData = JsonConvert.DeserializeObject<RedisData<T>>(s);
+                        ret = redisJsonData.Data;
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+            }
+
+            return ret;
+        }
+
+        public static bool DeleteKey(this IConnectionMultiplexer connectionMultiplexer, params string[] keys)
+        {
+            return DeleteKey(connectionMultiplexer, null, keys);
         }
         
         public static bool DeleteKey(this IConnectionMultiplexer connectionMultiplexer, int? dbNo = null, params string[] keys)
