@@ -9,6 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Caching.Distributed;
 using WebApplicationRedis.Extensions;
 using StackExchange.Redis;
+using Newtonsoft.Json;
+using System.Threading;
+using WebApplicationRedis.Models.RedisModels;
 
 namespace NUnitTestProjectRedis.TestWebApplicationRedis.Extensions
 {
@@ -96,7 +99,7 @@ namespace NUnitTestProjectRedis.TestWebApplicationRedis.Extensions
 
             Assert.AreEqual(0, data);
         }
-        
+
         [Test]
         public void Test_GetDataNull()
         {
@@ -125,7 +128,7 @@ namespace NUnitTestProjectRedis.TestWebApplicationRedis.Extensions
 
             Assert.IsTrue(ret);
         }
-        
+
         [Test]
         public void Test_DeleteKey0()
         {
@@ -137,7 +140,7 @@ namespace NUnitTestProjectRedis.TestWebApplicationRedis.Extensions
 
             Assert.IsTrue(!ret);
         }
-        
+
         [Test]
         public void Test_DeleteKeyWithNull()
         {
@@ -149,7 +152,7 @@ namespace NUnitTestProjectRedis.TestWebApplicationRedis.Extensions
 
             Assert.IsTrue(!ret);
         }
-        
+
         [Test]
         public void Test_DeleteKeyNull()
         {
@@ -160,13 +163,132 @@ namespace NUnitTestProjectRedis.TestWebApplicationRedis.Extensions
 
             Assert.IsTrue(!ret);
         }
+
+        [Test]
+        public void Test_SetAdd()
+        {
+
+            var srv = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
+            IDatabase db = srv.GetDatabase(0);
+            db.SetAdd("key1", "v1");
+            Assert.Pass();
+        }
+
+        [Test]
+        public void Test_HashSet()
+        {
+
+            var srv = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
+            IDatabase db = srv.GetDatabase(0);
+            db.HashSet("user:user1", new HashEntry[] { new HashEntry("12", "13"), new HashEntry("14", "15") });
+            Assert.Pass();
+        }
+
+        [Test]
+        public void Test_RedisStringData()
+        {
+            try
+            {
+                //store
+                var l = new List<StudentName>();
+                l.Add(new StudentName { Id = 1, Name = "one" });
+                l.Add(new StudentName { Id = 2, Name = "two" });
+                //convert to redis type
+                var lr = new RedisStringData();
+                lr.DataType = l.GetType().ToString();
+                lr.Data = JsonConvert.SerializeObject(l);
+                var rs = JsonConvert.SerializeObject(lr);
+
+                //get
+                var redisJsonData = JsonConvert.DeserializeObject<RedisStringData>(rs);
+                var dataType = Type.GetType(redisJsonData.DataType);
+
+                var x = JsonConvert.DeserializeObject(redisJsonData.Data, dataType);
+                var dataConvert = Convert.ChangeType(x, dataType);//https://referencesource.microsoft.com/#mscorlib/system/convert.cs,441ea31c17007e78
+
+                Assert.AreEqual(x.GetType(), l.GetType());
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            Assert.Pass();
+        }
+
+        [Test]
+        public void Test_RedisObjectData()
+        {
+            try
+            {
+                //store
+                var l = new List<StudentName>();
+                l.Add(new StudentName { Id = 1, Name = "one" });
+                l.Add(new StudentName { Id = 2, Name = "two" });
+                //convert to redis type
+                var lr = new RedisObjectData();
+                lr.DataType = l.GetType().ToString();
+                lr.Data = l;
+                var rs = JsonConvert.SerializeObject(lr);
+
+                //get
+                var redisJsonData = JsonConvert.DeserializeObject<RedisObjectData>(rs);
+                var dataType = Type.GetType(redisJsonData.DataType);
+                var dataConvert = Convert.ChangeType(redisJsonData.Data, dataType);//https://referencesource.microsoft.com/#mscorlib/system/convert.cs,441ea31c17007e78 //Object must implement IConvertible.
+
+                Assert.AreEqual(dataConvert.GetType(), l.GetType());
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            Assert.Pass();
+        }
         
+        [Test]
+        public void Test_RedisDataT()
+        {
+            try
+            {
+                //store
+                var l = new List<StudentName>();
+                l.Add(new StudentName { Id = 1, Name = "one" });
+                l.Add(new StudentName { Id = 2, Name = "two" });
+                //convert to redis type
+                var lr = new RedisData<List<StudentName>>();
+                lr.DataType = l.GetType();
+                lr.Data = l;
+                var rs = JsonConvert.SerializeObject(lr);
+
+                //get
+                var redisJsonData = JsonConvert.DeserializeObject<RedisData<List<StudentName>>>(rs);
+                var dataConvert = Convert.ChangeType(redisJsonData.Data, redisJsonData.DataType);//https://referencesource.microsoft.com/#mscorlib/system/convert.cs,441ea31c17007e78
+
+                Assert.AreEqual(dataConvert.GetType(), l.GetType());
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            Assert.Pass();
+        }
+
         [Test]
         public void Test_()
         {
 
-
             Assert.Pass();
         }
+        
+    }
+    internal class StudentName
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 }
